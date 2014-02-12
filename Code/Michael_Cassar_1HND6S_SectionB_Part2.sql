@@ -1,0 +1,49 @@
+-- Michael_Cassar_1HND6S_SectionB_Part2
+
+-- Explenation in Documentation - Page 8
+
+-- Dropping Foreign Keys and Street Column
+
+ALTER TABLE PERSON
+DROP COLUMN TownFK;
+
+ALTER TABLE PERSON
+DROP COLUMN STREET;
+
+ALTER TABLE STORE
+DROP COLUMN TownFK;
+
+-- Creating Street
+
+CREATE TABLE STREET
+  (StreetID NUMBER(4)
+     CONSTRAINT STREET_StreetID_PK
+     PRIMARY KEY,
+   StreetName VARCHAR2(40)
+     CONSTRAINT STREET_StreetName_NN
+     NOT NULL,
+   Postcode VARCHAR2(15),
+   TownFK NUMBER(4)
+     CONSTRAINT STREET_TownFK_FK
+     REFERENCES TOWN(Town_id)
+     ON DELETE CASCADE 
+     CONSTRAINT STREET_TownFK_NN
+     NOT NULL);
+     
+-- Adding Foreign Keys
+    
+ALTER TABLE PERSON
+ADD (StreetFK NUMBER(4)
+       CONSTRAINT PERSON_StreetFK_FK
+       REFERENCES STREET(StreetID)
+       ON DELETE CASCADE 
+       CONSTRAINT PERSON_StreetFK_NN
+       NOT NULL);
+
+ALTER TABLE STORE
+ADD (StreetFK NUMBER(4)
+       CONSTRAINT STORE_StreetFK_FK
+       REFERENCES STREET(StreetID)
+       ON DELETE CASCADE 
+       CONSTRAINT STORE_StreetFK_NN
+       NOT NULL);

@@ -1,0 +1,219 @@
+-- Michael_Cassar_1HND6S_SectionA
+
+-- Creating USERROLE
+
+CREATE TABLE USERROLE
+  (Role_id NUMBER(4)
+     CONSTRAINT USERROLE_Role_id_PK
+     PRIMARY KEY,
+   Role_name VARCHAR2(25)
+     CONSTRAINT USERROLE_Role_name_NN
+     NOT NULL
+     CONSTRAINT USERROLE_Role_name_UN
+     UNIQUE);
+
+-- Creating COUNTRY
+
+CREATE TABLE COUNTRY
+  (Country_id NUMBER(4)
+     CONSTRAINT COUNTRY_Country_id_PK
+     PRIMARY KEY,
+   Country_name VARCHAR2(25)
+     CONSTRAINT COUNTRY_Country_name_NN
+     NOT NULL);   
+
+-- Creating TOWN
+
+CREATE TABLE TOWN
+  (Town_id NUMBER(4)
+     CONSTRAINT TOWN_Town_id_PK
+     PRIMARY KEY,
+   CountryFK NUMBER(4)
+     CONSTRAINT TOWN_CountryFK_FK
+     REFERENCES COUNTRY(Country_id)
+     ON DELETE CASCADE
+     CONSTRAINT TOWN_CountryFK_NN
+     NOT NULL);
+
+-- Creating ITEMCATEGORY
+
+CREATE TABLE ITEMCATEGORY
+  (Category_id NUMBER(4)
+     CONSTRAINT ITEMCATEGORY_Category_id_PK
+     PRIMARY KEY,
+   Category_name VARCHAR2(25)
+     CONSTRAINT ITEMCATEGORY_Category_name_NN
+     NOT NULL
+     CONSTRAINT ITEMCATEGORY_Category_name_UN
+     UNIQUE);  
+     
+-- Creating STORE
+
+CREATE TABLE STORE
+  (Store_id NUMBER(4)
+     CONSTRAINT STORE_Store_id_PK
+     PRIMARY KEY,
+   Store_name VARCHAR2(25)
+     CONSTRAINT STORE_Store_name_NN
+     NOT NULL,
+   TownFK NUMBER(4)
+     CONSTRAINT STORE_TownFK_FK
+     REFERENCES TOWN(Town_id)
+     ON DELETE CASCADE
+     CONSTRAINT STORE_TOWNFK_NN
+     NOT NULL);  
+     
+-- Creating DEPARTMENT
+
+CREATE TABLE DEPARTMENT
+  (Department_id NUMBER(4),
+   Department_name VARCHAR2(25)
+     CONSTRAINT DEPARTMENT_Department_name_NN
+     NOT NULL,
+   StoreFK NUMBER(4)
+     CONSTRAINT DEPARTMENT_StoreFK_FK
+     REFERENCES STORE(Store_id)
+     ON DELETE CASCADE,
+   CONSTRAINT DEPARTMENT_Composite_PK
+     PRIMARY KEY (Department_id, StoreFK));   
+     
+-- Creating ITEM
+
+CREATE TABLE ITEM
+  (Item_id NUMBER(4),
+   Item_name VARCHAR2(25)
+     CONSTRAINT ITEM_Item_name_NN
+     NOT NULL,
+   Item_price NUMBER(6,2)
+     CONSTRAINT ITEM_Item_price_NN
+     NOT NULL,
+   Thumbnail BLOB,
+   ItemCategoryFK NUMBER(4)
+     CONSTRAINT ITEM_ItemCategoryFK_FK
+     REFERENCES ITEMCATEGORY(Category_id)
+     ON DELETE CASCADE
+     CONSTRAINT ITEM_ItemCategoryFK_NN
+     NOT NULL,
+   DepartmentFK NUMBER(4),
+   StoreFK NUMBER(4),
+   CONSTRAINT ITEM_Composite_FK
+   FOREIGN KEY(DepartmentFK, StoreFK)
+   REFERENCES DEPARTMENT(Department_id, StoreFK)
+   ON DELETE CASCADE,
+   CONSTRAINT ITEM_Composite_PK
+   PRIMARY KEY(Item_id, DepartmentFK, StoreFK)); 
+   
+-- Creating USERACCOUNT
+
+CREATE TABLE USERACCOUNT
+  (User_account_id NUMBER(4)
+     CONSTRAINT USERACCOUNT_User_account_id_PK
+     PRIMARY KEY,
+   Username VARCHAR2(25)
+     CONSTRAINT USERACCOUNT_Username_NN
+     NOT NULL
+     CONSTRAINT USERACCOUNT_Username_UN
+     UNIQUE,
+   Password VARCHAR2(25)
+     CONSTRAINT USERACCOUNT_Password_NN
+     NOT NULL,
+   Secret_Question VARCHAR2(40)
+     CONSTRAINT USERACCOUNT_Secret_Question_NN
+     NOT NULL,
+   SecretAnswer VARCHAR2(40)
+     CONSTRAINT USERACCOUNT_SecretAnswer_NN
+     NOT NULL,
+   UserRoleFK NUMBER(4)
+     CONSTRAINT USERACCOUNT_UserRoleFK_FK
+     REFERENCES USERROLE(Role_id)
+     ON DELETE CASCADE
+     CONSTRAINT USERACCOUNT_UserRoleFK_NN
+     NOT NULL);   
+
+-- Creating ORDERS
+
+CREATE TABLE ORDERS
+  (Order_id NUMBER(4)
+     CONSTRAINT ORDERS_Order_id_PK
+     PRIMARY KEY,
+   Order_date DATE
+     CONSTRAINT ORDERS_Order_date_NN
+     NOT NULL,
+   UserAccountFK NUMBER(4)
+     CONSTRAINT ORDERS_UserAccountFK_FK
+     REFERENCES USERACCOUNT(User_account_id)
+     ON DELETE CASCADE
+     CONSTRAINT ORDERS_UserAccountFK_NN
+     NOT NULL);
+     
+-- Creating ORDERITEM
+
+CREATE TABLE ORDERITEM
+  (OrderFK NUMBER(4)
+     CONSTRAINT ORDERITEM_OrderFK_FK
+     REFERENCES ORDERS(Order_id)
+     ON DELETE CASCADE,
+   ItemFK NUMBER(4),
+   DepartmentFK NUMBER(4),
+   StoreFK NUMBER(4),
+   Quantity NUMBER(6)
+     CONSTRAINT ORDERITEM_Quantity_NN
+     NOT NULL,
+   CONSTRAINT ORDERITEM_Composite_FK
+   FOREIGN KEY(ItemFK, DepartmentFK, StoreFK)
+   REFERENCES ITEM(Item_id, DepartmentFK, StoreFK)
+   ON DELETE CASCADE,
+   CONSTRAINT ORDERITEM_Composite_PK
+   PRIMARY KEY(OrderFK, ItemFK, DepartmentFK, StoreFK));   
+   
+-- Creating PERSON
+
+CREATE TABLE PERSON
+  (Person_id NUMBER(4)
+     CONSTRAINT PERSON_Person_id_PK
+     PRIMARY KEY,
+   Fullname VARCHAR2(40)
+     CONSTRAINT PERSON_Fullname_NN
+     NOT NULL,
+   Residence_name VARCHAR2(25)
+     CONSTRAINT PERSON_Residence_name_NN
+     NOT NULL,
+   Street VARCHAR2(40)
+     CONSTRAINT PERSON_Street_NN
+     NOT NULL,
+   Town_name VARCHAR2(25)
+     CONSTRAINT PERSON_Town_name_NN
+     NOT NULL,
+   Date_of_birth DATE
+     CONSTRAINT PERSON_Date_of_birth_NN
+     NOT NULL,
+   Email VARCHAR2(25)
+     CONSTRAINT PERSON_Email_NN
+     NOT NULL
+     CONSTRAINT PERSON_Email_UN
+     UNIQUE,
+   Contact_number VARCHAR2(25)
+     CONSTRAINT PERSON_Contact_number_NN
+     NOT NULL,
+   PersonType VARCHAR2(25)
+     CONSTRAINT PERSON_PersonType_NN
+     NOT NULL,
+   Registration_date DATE,
+   Employment_date DATE,
+   Vatnumber NUMBER(20)
+     CONSTRAINT PERSON_Vatnumber_UN
+     UNIQUE,
+   UserAccountFK NUMBER(4)
+     CONSTRAINT PERSON_UserAccountFK_FK
+     REFERENCES USERACCOUNT(User_account_id)
+     ON DELETE CASCADE
+     CONSTRAINT PERSON_UserAccountFK_NN
+     NOT NULL
+     CONSTRAINT PERSON_UserAccountFK_UN
+     UNIQUE,
+   TownFK NUMBER(4)
+     CONSTRAINT PERSON_TownFK_FK
+     REFERENCES TOWN(Town_id)
+     ON DELETE CASCADE
+     CONSTRAINT PERSON_TownFK_NN
+     NOT NULL);

@@ -1,0 +1,85 @@
+-- Michael_Cassar_1HND6S_SectionB_Part1
+
+-- Question 1
+
+ALTER TABLE PERSON
+DROP COLUMN FULLNAME;
+
+ALTER TABLE PERSON
+ADD (FirstName VARCHAR2(25)
+       CONSTRAINT PERSON_FirstName_NN
+       NOT NULL,
+     LastName VARCHAR2(25)
+       CONSTRAINT PERSON_LastName_NN
+       NOT NULL);
+    
+-- Question 2
+
+ALTER TABLE PERSON
+DROP COLUMN TOWN_NAME;
+
+ALTER TABLE TOWN
+ADD (TownName VARCHAR2(25)
+       CONSTRAINT TOWN_TownName_NN
+       NOT NULL);
+
+-- Question 3
+
+-- Explenation in Documentation - Page 8
+
+-- Dropping Columns
+
+ALTER TABLE PERSON
+DROP COLUMN PERSONTYPE;
+
+ALTER TABLE PERSON
+DROP COLUMN REGISTRATION_DATE;
+
+ALTER TABLE PERSON
+DROP COLUMN EMPLOYMENT_DATE;
+
+-- Creating CLIENT
+
+CREATE TABLE CLIENT
+  (ClientID NUMBER(4)
+     CONSTRAINT CLIENT_ClientID_PK
+     PRIMARY KEY,
+   RegistrationDate DATE
+     CONSTRAINT CLIENT_RegistrationDate_NN
+     NOT NULL);
+
+-- CREATING EMPLOYEE
+
+CREATE TABLE EMPLOYEE
+  (EmployeeID NUMBER(4)
+     CONSTRAINT EMPLOYEE_EmployeeID_PK
+     PRIMARY KEY,
+   EmploymentDate DATE
+     CONSTRAINT EMPLOYEE_EmploymentDate_NN
+     NOT NULL,
+   ManagerID NUMBER(4)
+     CONSTRAINT EMPLOYEE_ManagerID_FK
+     REFERENCES PERSON(Person_id)
+     ON DELETE CASCADE
+     CONSTRAINT EMPLOYEE_ManagerID_UN
+     UNIQUE);
+            
+-- Adding Foreign Keys and Check            
+            
+ALTER TABLE PERSON
+ADD (EmployeeFK NUMBER(4)
+       CONSTRAINT PERSON_EmployeeFK_FK
+       REFERENCES EMPLOYEE(EmployeeID)
+       ON DELETE CASCADE 
+       CONSTRAINT PERSON_EmployeeFK_UN
+       UNIQUE,
+     ClientFK NUMBER(4)
+       CONSTRAINT PERSON_ClientFK_FK
+       REFERENCES CLIENT(ClientID)
+       ON DELETE CASCADE 
+       CONSTRAINT PERSON_ClientFK_UN
+       UNIQUE,
+     CONSTRAINT PERSON_CheckSubType_CK
+     CHECK ((EmployeeFK IS NOT NULL AND ClientFK IS NULL)
+             OR
+            (EmployeeFK IS NULL AND ClientFK IS NOT NULL)));
